@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf-ocr-stamper"
+version = "0.2.0"
+description = "Sellado de firmas en PDF con anclajes, reglas y modo dry-run"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "typer>=0.12",
+  "PyMuPDF>=1.21",
+  "Pillow>=10.0",
+  "PyYAML>=6.0",
+]
+
+[project.scripts]
+pdf-ocr-stamper = "pdf_ocr_stamper.cli:main"

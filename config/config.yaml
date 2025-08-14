@@ -1,0 +1,16 @@
+input_dir: "input"
+output_dir: "output"
+
+signature:
+  path: "config/firma.png"
+
+# Defaults globales (pueden omitirse)
+x: 420
+y: 120
+#width: 220
+#height: 90
+rotation: 0
+keep_aspect: true
+# scale: 0.35
+# stamp_page_range: "1-"
+# page: 1

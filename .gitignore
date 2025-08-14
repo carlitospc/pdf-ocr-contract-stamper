@@ -1,0 +1,50 @@
+# =========================
+# Archivos de configuración sensible
+# =========================
+.env
+
+# =========================
+# Carpetas de entrada y salida
+# =========================
+input/
+output/
+previews/
+
+# =========================
+# Archivos temporales de Python
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache
+
+# =========================
+# Entornos virtuales
+# =========================
+.venv/
+venv/
+ENV/
+
+# =========================
+# Archivos temporales y de sistema
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Archivos de logs
+# =========================
+*.log
+
+# =========================
+# Archivos de configuración local
+# =========================
+config/firma.png
+
+# =========================
+# Archivos generados por herramientas
+# =========================
+*.zip
+*.tar
+*.gz
