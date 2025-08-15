@@ -16,32 +16,6 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
 python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rules.yaml
 ```
 
-# Instalación
-1. Tesseract
-1.1 Descargar e instalar tesseract desde https://github.com/UB-Mannheim/tesseract/wiki.
--> Tesseract installer for Windows -> tesseract-ocr-w64-setup-5.5.0.20241111.exe (64 bit) -> https://github.com/tesseract-ocr/tesseract/releases/download/5.5.0/tesseract-ocr-w64-setup-5.5.0.20241111.exe
-
-1.2 Durante la instalación, en el apartado de "Seleccion de componentes", marcamos "Aditional languaje data (download)" y seleccionamos "Spanish"
-
-1.3 Agregamos Tesseract a las variables de entorno:
-1.3.1 Variables del sistema
-1.3.1.1 Seleccionamos "Path" -> "Editar" -> Nuevo | Agregamos "C:\Program Files\Tesseract-OCR\" (Sin las comillas)
-1.3.1.2 Click en "Nueva..." -> Agregamos en Nombre de la variable: TESSDATA_PREFIX | Valor de la variable: C:\Program Files\Tesseract-OCR\tessdata
-
-1.3 Verificacmos desde la consola de windows:
-1.3.1 Verificacmos la instalacion: tesseract --version
-1.3.2 Verificamos el lenguaje (debe estar presente apa): tesseract --list-langs
-
-# Development
-1. Clonar el repositorio
-2. Crear/activae el entorno virtual venv:
-python -m venv .venv
-call .venv\Scripts\activate
-3. Instalar dependencias:
-pip install -r requirements.txt
-4. Ejecutar run.bat o run-preview.bat
-
-
 ## 📦 Instalación
 
 ## 1. Instalar Tesseract OCR
