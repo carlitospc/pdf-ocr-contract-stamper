@@ -73,17 +73,57 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
 
 # Recrear el venv para que no queden referencias rotas
 
-deactivate
-rmdir /s /q .venv
+# 1) Crear un venv limpio
+rmdir /s /q .venv 2>$null
 python -m venv .venv
 .\.venv\Scripts\activate
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
-python -m pip install -r requirements-dev.txt
+python -m pip install --upgrade pip
+
+# 2) Instalar dependencias de desarrollo (incluye ejecución)
+pip install -r requirements-dev.txt
+
+# 3) Limpiar artefactos de compilaciones previas
+rmdir /s /q build dist 2>$null
+del /q pdf-ocr-stamper.spec 2>$null
+
+# 4) Compilar en onedir (rápido para probar)
+pyinstaller src\pdf_ocr_stamper\cli.py --name pdf-ocr-stamper --onedir --console --paths src --hidden-import=typer --hidden-import=click
+
+# 5) Probar el binario generado
+.\dist\pdf-ocr-stamper\pdf-ocr-stamper.exe --config config\config.yaml
+
+# 6) Si funciona, compilar en onefile (el final)
+rmdir /s /q build dist 2>$null
+del /q pdf-ocr-stamper.spec 2>$null
+pyinstaller src\pdf_ocr_stamper\cli.py --name pdf-ocr-stamper --onefile --console --paths src --hidden-import=typer --hidden-import=click
+
 
 # Compilar
 
-pyinstaller launcher.py --name pdf-ocr-stamper --onefile --console
+.\.venv\Scripts\activate
+where python
+where pyinstaller
+
+pyinstaller src\pdf_ocr_stamper\cli.py --name pdf-ocr-stamper --onedir --console --paths src --hidden-import=typer --hidden-import=click
+
+
+# Se genera la estructura
+
+pdf-ocr-stamper.exe
+rules.yaml
+config\
+  config.yaml
+  firma.png
+input\
+output\
+previews\
+manifest.csv   (si lo usas)
+
+# Se ejecuta con
+
+.\pdf-ocr-stamper.exe --config config\config.yaml
+
+
 
 
 
