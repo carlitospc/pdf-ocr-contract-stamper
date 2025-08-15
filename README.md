@@ -47,7 +47,7 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
 
 1. Clonar el repositorio:
     ```bash
-    git clone <URL_DEL_REPOSITORIO>
+    git clone https://github.com/carlitospc/pdf-ocr-contract-stamper.git
     ```
 2. Crear/activae el entorno virtual venv:
     ```bash
