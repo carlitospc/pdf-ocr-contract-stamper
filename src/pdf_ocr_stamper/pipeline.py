@@ -70,6 +70,9 @@ def process_batch(cfg: dict):
         raise
 
     for pdf_path in input_dir.glob("*.pdf"):
+        #------------------------------------------------
+        print(f"[INFO] Procesando: {pdf_path}") 
+        #------------------------------------------------
         try:
             doc = fitz.open(pdf_path)
         except Exception as e:
