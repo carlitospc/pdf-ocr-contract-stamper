@@ -70,3 +70,20 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
 3. Los archivos firmados se agregan a output/
 4. Los archivos de muestra generados mediante run-preview.bat se generan en previews/
 5. Las regla de configuración debe realizarse en rules.yaml 
+
+# Recrear el venv para que no queden referencias rotas
+
+deactivate
+rmdir /s /q .venv
+python -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
+
+# Compilar
+
+pyinstaller launcher.py --name pdf-ocr-stamper --onefile --console
+
+
+
