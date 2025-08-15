@@ -3,6 +3,7 @@ import csv
 import traceback
 import fitz
 from PIL import Image
+import typer
 
 from .manifest import load_manifest, parse_page_range
 from .rules_loader import load_rules, pick_rule_for
@@ -30,7 +31,7 @@ def _append_error(err_rows, file_name, where, exc: Exception):
         "stack": "".join(traceback.format_exception_only(type(exc), exc)).strip()
     })
 
-def process_batch(cfg: dict):
+def process_batch(cfg: dict, auto_confirm: bool = False):
     input_dir = Path(cfg["input_dir"])
     output_dir = Path(cfg["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -68,11 +69,34 @@ def process_batch(cfg: dict):
             w.writeheader()
             w.writerows(error_rows)
         raise
+    
+    # -------- DESCUBRIR PDFs + RESUMEN + CONFIRMACIÓN --------
+    pdf_files = sorted([p for p in input_dir.glob("*.pdf") if p.is_file()])
 
-    for pdf_path in input_dir.glob("*.pdf"):
-        #------------------------------------------------
+    if not pdf_files:
+        typer.echo("[INFO] No se encontraron PDFs para procesar en la carpeta de entrada.")
+        # No retornamos: así igual se genera outlog vacío al final.
+    else:
+        total = len(pdf_files)
+        preview = "\n".join(f"  • {p.name}" for p in pdf_files[:10])
+        if total > 10:
+            preview += f"\n  … y {total - 10} más"
+
+        typer.echo(f"[INFO] Se encontraron {total} PDF(s) en {input_dir}")
+        if preview:
+            typer.echo(preview)
+
+        if not auto_confirm:
+            continuar = typer.confirm("¿Deseas continuar con el procesamiento?", default=True)
+            if not continuar:
+                typer.echo("Operación cancelada por el usuario.")
+                return  # sale sin procesar; aún se escribirá el outlog vacío
+
+    # -------- PROCESAMIENTO (usa la lista precomputada) --------
+    for pdf_path in pdf_files:
+        # ------------------------------------------------
         print(f"[INFO] Procesando: {pdf_path}") 
-        #------------------------------------------------
+        # ------------------------------------------------
         try:
             doc = fitz.open(pdf_path)
         except Exception as e:

@@ -7,7 +7,8 @@ def main(
     manifest: str = typer.Option(None, "--manifest", "-m"),
     dry_run: bool = typer.Option(False, "--dry-run"),
     rules: str = typer.Option(None, "--rules", help="Ruta a rules.yaml"),
-    outlog: str = typer.Option("output/placement_log.csv", "--outlog", help="CSV con estrategia usada")
+    outlog: str = typer.Option("output/placement_log.csv", "--outlog", help="CSV con estrategia usada"),
+    yes: bool = typer.Option(False, "--yes", "-y", help="No pedir confirmación; continuar automáticamente")
 ):
     cfg = load_config(config)
     if manifest:
@@ -16,7 +17,9 @@ def main(
     if rules:
         cfg["rules_yaml"] = rules
     cfg["outlog"] = outlog
-    process_batch(cfg)
+    
+    # pasa el flag al pipeline
+    process_batch(cfg, auto_confirm=yes)
 
 if __name__ == "__main__":
     typer.run(main)
