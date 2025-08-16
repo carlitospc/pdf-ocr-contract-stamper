@@ -49,7 +49,7 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
     ```bash
     git clone https://github.com/carlitospc/pdf-ocr-contract-stamper.git
     ```
-2. Crear/activae el entorno virtual venv:
+2. Crear/activar el entorno virtual venv:
     ```bash
     python -m venv .venv
     ```
@@ -62,7 +62,7 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
     ```
 4. Ejecutar aplicación o previsualizacón:
     ```bash
-    run.bat o run-preview.bat
+    run.bat
     ```
     ```bash
     run-preview.bat
