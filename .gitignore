@@ -8,8 +8,13 @@ build/
 # Carpetas de entrada y salida
 # =========================
 input/*
+!input/.gitkeep
+
 output/*
+!output/.gitkeep
+
 previews/*
+!previews/.gitkeep
 
 # =========================
 # Archivos temporales de Python
