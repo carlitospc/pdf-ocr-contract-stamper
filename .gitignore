@@ -2,13 +2,14 @@
 # Archivos de configuración sensible
 # =========================
 .env
+build/
 
 # =========================
 # Carpetas de entrada y salida
 # =========================
-input/
-output/
-previews/
+input/*
+output/*
+previews/*
 
 # =========================
 # Archivos temporales de Python
