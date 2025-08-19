@@ -12,7 +12,7 @@ REM Ir a la carpeta donde está este .bat
 cd /d "%~dp0"
 
 echo.
-echo === [1/7] Preparando entorno virtual (.venv) ===========================
+echo === [1/6] Preparando entorno virtual (.venv) ===========================
 REM Si quieres conservación del venv, comenta las 2 lineas siguientes
 IF EXIST ".venv" (
   echo Eliminando venv anterior...
@@ -29,20 +29,20 @@ echo Actualizando pip/setuptools/wheel...
 python -m pip install -U pip setuptools wheel || goto :fail
 
 echo.
-echo === [2/7] Instalando dependencias de desarrollo ========================
+echo === [2/6] Instalando dependencias de desarrollo ========================
 IF NOT EXIST requirements-dev.txt (
   echo ERROR: requirements-dev.txt no existe. & goto :fail
 )
 python -m pip install -r requirements-dev.txt || goto :fail
 
 echo.
-echo === [3/7] Limpiando artefactos previos =================================
+echo === [3/6] Limpiando artefactos previos =================================
 IF EXIST build  rmdir /s /q build
 IF EXIST dist   rmdir /s /q dist
 IF EXIST pdf-ocr-stamper.spec del /q pdf-ocr-stamper.spec
 
 echo.
-echo === [5/7] Compilando en ONEDIR (prueba rapida) =========================
+echo === [4/6] Compilando en ONEDIR (prueba rapida) =========================
 REM Usamos PyInstaller del venv y explicitamos --paths src por layout src/
 ".venv\Scripts\pyinstaller.exe" ^
   src\pdf_ocr_stamper\cli.py ^
@@ -58,7 +58,7 @@ REM Usamos PyInstaller del venv y explicitamos --paths src por layout src/
 IF ERRORLEVEL 1 goto :fail
 
 echo.
-echo === [6/7] Prueba de ejecucion ONEDIR ==================================
+echo === [5/6] Prueba de ejecucion ONEDIR ==================================
 IF EXIST "dist\pdf-ocr-stamper\pdf-ocr-stamper.exe" (
   echo Ejecutable de prueba generado: dist\pdf-ocr-stamper\pdf-ocr-stamper.exe
   echo ^(Opcional^) Prueba rapida:
@@ -69,7 +69,7 @@ IF EXIST "dist\pdf-ocr-stamper\pdf-ocr-stamper.exe" (
 )
 
 echo.
-echo === [7/7] Compilando en ONEFILE (final) ================================
+echo === [6/6] Compilando en ONEFILE (final) ================================
 REM Limpiamos dist/build/spec para un onefile limpio
 IF EXIST build  rmdir /s /q build
 IF EXIST dist   rmdir /s /q dist
