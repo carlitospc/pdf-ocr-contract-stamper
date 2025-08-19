@@ -31,7 +31,7 @@
    ```bash
    git clone https://github.com/carlitospc/pdf-ocr-contract-stamper.git
    ```
-2. Copiamos el directorio Aplication en cualquier ubicacion y ejecutanmos la aplicación con o sin menu, ejecutando run-stamper.bat o run-stamper-menu.bat 
+2. Copiar el directorio **Aplication** en cualquier ubicacion y ejecutar la aplicación con o sin menu, ejecutando **run-stamper.bat** o **run-stamper-menu.bat** 
 
 
 ## 3. Development
