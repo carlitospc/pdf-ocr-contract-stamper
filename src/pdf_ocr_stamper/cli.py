@@ -30,7 +30,7 @@ def main(
     
     
     # === Diagnóstico: muestra de dónde se tomará cada cosa ===
-    print("──────────────── Diagnóstico de rutas ────────────────")
+    print("──────────────── Configuración de rutas ────────────────")
     print(f"[INFO] Working dir: {Path.cwd()}")
     if getattr(sys, "frozen", False):
         print(f"[INFO] Ejecutable (PyInstaller): {Path(sys.executable)}")
