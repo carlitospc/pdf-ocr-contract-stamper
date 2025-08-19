@@ -1,21 +1,5 @@
 # pdf-ocr-stamper
 
-Sellado de firma en PDFs con:
-- `manifest.csv` por archivo
-- Reglas (`rules.yaml`): anclajes por texto (regex), posiciones relativas, detección de líneas
-- `--dry-run`: genera JPGs de previsualización sin tocar PDFs
-- Log CSV con estrategia usada por página
-
-## Uso rápido
-
-```bash
-# Previsualización
-python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rules.yaml --dry-run
-
-# Sellado real
-python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rules.yaml
-```
-
 ## 📦 Instalación
 
 ## 1. Instalar Tesseract OCR
@@ -28,7 +12,7 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
    - En **Selección de componentes**, marcar **Additional language data (download)**.
    - Seleccionar el idioma **Spanish**.
 
-3. Agregar Tesseract a las variables de entorno de Windows:
+3. (OPCIONAL) Agregar Tesseract a las variables de entorno de Windows:
    - Abrir **Variables de entorno** → En **Variables del sistema**:
      1. Editar la variable `Path` y agregar:
         ```
@@ -38,7 +22,7 @@ python -m pdf_ocr_stamper.cli -c config/config.yaml -m manifest.csv --rules rule
         - **Nombre**: `TESSDATA_PREFIX`
         - **Valor**: `C:\Program Files\Tesseract-OCR\tessdata`
 
-4. Verificar la instalación en la consola de Windows (CMD o PowerShell):
+4. (OPCIONAL) Verificar la instalación en la consola de Windows (CMD o PowerShell):
    ```bash
    tesseract --version
    tesseract --list-langs
