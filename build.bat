@@ -53,6 +53,7 @@ REM Usamos PyInstaller del venv y explicitamos --paths src por layout src/
   --hidden-import=typer ^
   --hidden-import=click ^
   --collect-submodules pdf_ocr_stamper ^
+  --icon=assets\icon.ico ^
   --clean
 IF ERRORLEVEL 1 goto :fail
 
@@ -83,6 +84,7 @@ IF EXIST pdf-ocr-stamper.spec del /q pdf-ocr-stamper.spec
   --hidden-import=typer ^
   --hidden-import=click ^
   --collect-submodules pdf_ocr_stamper ^
+  --icon=assets\icon.ico ^
   --clean
 IF ERRORLEVEL 1 goto :fail
 

@@ -1,5 +1,3 @@
-# pdf-ocr-stamper
-
 ## 📦 Instalación
 
 ## 1. Instalar Tesseract OCR
