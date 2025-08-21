@@ -30,15 +30,7 @@ output:
     enabled: true
     prefix: "_revision_manual_"
     suffix: ""        
-    move_to_subfolder: true
+    move_to_subfolder: false
     subfolder: "manual_review"
     write_report: true
     report_path: "output/unmatched_pdfs.csv"
-
-  mark_errors:
-    enabled: true
-    prefix: "_error_"
-    move_to_subfolder: true
-    subfolder: "error_review"
-    write_report: true
-    report_path: "output/error_pdfs.csv"

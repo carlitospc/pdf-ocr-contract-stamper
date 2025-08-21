@@ -158,7 +158,10 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                 rule = None
                 defaults_rule = {}
 
-            rows = manifest.get(pdf_path.name.lower(), []) or [dict()]
+            #rows = manifest.get(pdf_path.name.lower(), []) or [dict()]
+            name_l = pdf_path.name.lower()
+            rows = manifest.get(name_l, []) or manifest.get("*", []) or manifest.get("__default__", []) or [dict()]
+
 
             # >>> ADD: indicadores para decidir match_source al final
             had_rule = bool(rule)
@@ -207,6 +210,11 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                     def _f(v):
                         v = (v or "").strip() if isinstance(v, str) else v
                         return None if v in ("", None) else v
+                    
+                    # NUEVO: leer crudo del manifest
+                    row_x_raw = _f(row.get("x"))
+                    row_y_raw = _f(row.get("y"))
+                    row_has_xy = (row_x_raw is not None) or (row_y_raw is not None)
 
                     x = float(_f(row.get("x")) or default_x)
                     y = float(_f(row.get("y")) or default_y)
@@ -261,8 +269,8 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                             except Exception as e:
                                 _append_error(error_rows, pdf_path.name, f"line_detection_page_{p1}", e)
 
-                        # 3) Posición relativa
-                        if place_x is None:
+                        # 3) Posición relativa (solo si el manifest NO trajo x/y)
+                        if place_x is None and not row_has_xy:
                             try:
                                 fback = (rule or {}).get("fallback") or {}
                                 position = fback.get("position") or defaults_rule.get("position")
@@ -275,6 +283,7 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                                     strategy_used = f"relative:{position}"
                             except Exception as e:
                                 _append_error(error_rows, pdf_path.name, f"relative_pos_page_{p1}", e)
+
 
                         # 4) Absoluto
                         if place_x is None:
