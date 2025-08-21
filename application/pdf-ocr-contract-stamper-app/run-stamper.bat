@@ -7,7 +7,7 @@ cd /d "%~dp0"
 
 echo Ejecutando pdf-ocr-stamper...
 
-.\pdf-ocr-stamper.exe --config config\config.yaml
+.\pdf-ocr-stamper.exe --config config\config.yaml -m manifest.csv
 
 echo.
 echo Proceso terminado.
