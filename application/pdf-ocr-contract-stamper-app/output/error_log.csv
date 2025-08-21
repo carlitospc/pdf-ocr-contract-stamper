@@ -1,0 +1,14 @@
+file,where,error,stack
+CONTRATO FIRMADO MARIANA E BENAVIDES B.pdf,anchor_page_3,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+CONTRATO FIRMADO MARIANA E BENAVIDES B.pdf,anchor_page_2,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+CONTRATO FIRMADO MARIANA E BENAVIDES B.pdf,anchor_page_1,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+CONTRATO FIRMADO MARIANA E BENAVIDES B.pdf,save_pdf,FzErrorFormat: code=7: object out of range (0 0 R); xref size 68,pymupdf.mupdf.FzErrorFormat: code=7: object out of range (0 0 R); xref size 68
+Contrato Jose Arles Ibarra Leyton.pdf,anchor_page_2,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+Contrato Jose Arles Ibarra Leyton.pdf,anchor_page_1,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato LEIDY CABRERA.pdf,anchor_page_3,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato LEIDY CABRERA.pdf,anchor_page_2,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato LEIDY CABRERA.pdf,anchor_page_1,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato MONICA URRESTA (2).pdf,anchor_page_3,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato MONICA URRESTA (2).pdf,anchor_page_2,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato MONICA URRESTA (2).pdf,anchor_page_1,error: bad escape \R at position 34,re.error: bad escape \R at position 34
+contrato MONICA URRESTA (2).pdf,save_pdf,FzErrorFormat: code=7: object out of range (0 0 R); xref size 62,pymupdf.mupdf.FzErrorFormat: code=7: object out of range (0 0 R); xref size 62

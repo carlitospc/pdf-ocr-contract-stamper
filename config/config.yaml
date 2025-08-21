@@ -24,3 +24,21 @@ keep_aspect: true             # Mantener proporción (override posible en rules.
 #scale: 0.35                   # Escala global, se puede ajustar por regla
 #stamp_page_range: "1-"        # Rango de páginas donde aplicar la firma
 #page: 1                       # Página por defecto
+
+output:
+  mark_unmatched:
+    enabled: true
+    prefix: "_revision_manual_"
+    suffix: ""        
+    move_to_subfolder: true
+    subfolder: "manual_review"
+    write_report: true
+    report_path: "output/unmatched_pdfs.csv"
+
+  mark_errors:
+    enabled: true
+    prefix: "_error_"
+    move_to_subfolder: true
+    subfolder: "error_review"
+    write_report: true
+    report_path: "output/error_pdfs.csv"

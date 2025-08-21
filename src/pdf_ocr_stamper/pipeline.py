@@ -11,6 +11,38 @@ from .anchors import find_anchor_bbox, compute_pos_from_anchor, find_signature_l
 from .placement import place_by_position
 from .signature import get_signature
 
+# >>> ADD: utilidades mínimas para marcado/mover y reporte
+def _mark_filename(path: Path, prefix: str = "", suffix: str = "") -> Path:
+    if not prefix and not suffix:
+        return path
+    stem = path.stem
+    return path.with_name(f"{prefix}{stem}{suffix}{path.suffix}")
+
+class _MatchSource:
+    RULES_MATCH = "rules_match"
+    RULES_FALLBACK = "rules_fallback"
+    NO_RULES_MANIFEST = "no_rules_manifest"
+    NO_RULES_DEFAULT = "no_rules_default"
+
+def _should_flag(match_source: str) -> bool:
+    return match_source in {
+        _MatchSource.RULES_FALLBACK,
+        _MatchSource.NO_RULES_MANIFEST,
+        _MatchSource.NO_RULES_DEFAULT,
+    }
+
+def _write_unmatched_row(report_path: Path, filename: str, match_source: str,
+                         rule_name: str, reason: str, pages_affected: int, output_path: Path):
+    header = ["filename", "match_source", "rule_name", "reason", "pages_affected", "output_path"]
+    file_exists = report_path.exists()
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with report_path.open("a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if not file_exists:
+            w.writerow(header)
+        w.writerow([filename, match_source, rule_name or "", reason or "", pages_affected or "", str(output_path)])
+# >>> END ADD
+
 def _calc_sig_size(img_w, img_h, width, height, scale, keep_aspect):
     if (width is None and height is None) and scale is not None:
         width = img_w * scale
@@ -50,6 +82,17 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
     error_rows = []
     error_log_path = output_dir / "error_log.csv"
 
+    # >>> ADD: leer configuración de marcado/movido y reporte
+    mark_cfg = (cfg.get("output", {}) or {}).get("mark_unmatched", {}) or {}
+    mark_enabled = bool(mark_cfg.get("enabled", False))
+    mark_prefix = mark_cfg.get("prefix", "")
+    mark_suffix = mark_cfg.get("suffix", "")
+    move_to_subfolder = bool(mark_cfg.get("move_to_subfolder", False))
+    target_subfolder = mark_cfg.get("subfolder", "manual_review")
+    write_report = bool(mark_cfg.get("write_report", False))
+    report_path = Path(mark_cfg.get("report_path", output_dir / "unmatched_pdfs.csv"))
+    # >>> END ADD
+
     default_x = cfg.get("x", 0)
     default_y = cfg.get("y", 0)
     default_width = cfg.get("width")
@@ -75,7 +118,6 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
 
     if not pdf_files:
         typer.echo("[INFO] No se encontraron PDFs para procesar en la carpeta de entrada.")
-        # No retornamos: así igual se genera outlog vacío al final.
     else:
         total = len(pdf_files)
         preview = "\n".join(f"  • {p.name}" for p in pdf_files[:10])
@@ -90,13 +132,11 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
             continuar = typer.confirm("¿Deseas continuar con el procesamiento?", default=True)
             if not continuar:
                 typer.echo("Operación cancelada por el usuario.")
-                return  # sale sin procesar; aún se escribirá el outlog vacío
+                return
 
     # -------- PROCESAMIENTO (usa la lista precomputada) --------
     for pdf_path in pdf_files:
-        # ------------------------------------------------
         print(f"[INFO] Procesando: {pdf_path}") 
-        # ------------------------------------------------
         try:
             doc = fitz.open(pdf_path)
         except Exception as e:
@@ -120,12 +160,18 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
 
             rows = manifest.get(pdf_path.name.lower(), []) or [dict()]
 
+            # >>> ADD: indicadores para decidir match_source al final
+            had_rule = bool(rule)
+            had_manifest_rows = manifest.get(pdf_path.name.lower(), None) not in (None, [])
+            any_anchor_used = False
+            any_relative_used = False
+            any_absolute_used = False
+            pages_affected = 0
+            # >>> END ADD
+
             for row in rows:
-                # -------- Resolver páginas (con search_last_pages) --------
                 try:
                     row_range = row.get("stamp_page_range") if row else None
-
-                    # N últimas páginas desde la regla aplicada o defaults de rules.yaml
                     try:
                         search_last = int(
                             ((rule or {}).get("search_last_pages")
@@ -140,30 +186,22 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
 
                     if explicit_range:
                         pages = parse_page_range(row_range or default_range, page_count)
-
                     elif explicit_page:
-                        # Se respeta 'page' si viene en manifest o en config.yaml
                         page1 = int((row.get("page") if row else None) or cfg.get("page") or 1)
                         pages = [min(max(page1, 1), page_count)]
-
                     elif search_last > 0:
-                        # SIN page/range → usar ÚLTIMAS N páginas
                         start = max(1, page_count - search_last + 1)
                         pages = list(range(start, page_count + 1))
-
                     else:
-                        # Fallback clásico (si no hay reglas)
                         pages = [1]
 
                 except Exception as e:
                     _append_error(error_rows, pdf_path.name, "resolve_pages", e)
                     continue
 
-                # -------- PATCH B: preferir último y cortar tras primer ancla --------
                 prefer_last = (search_last > 0) and not explicit_range and not explicit_page
                 iter_pages = reversed(pages) if prefer_last else pages
                 placed_on_this_row = False
-                # --------------------------------------------------------------------
 
                 try:
                     def _f(v):
@@ -254,9 +292,18 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
                                 img.save(out_dir / f"page-{p1}.jpg", format="JPEG", quality=92)
 
-                                # Si fue por ancla, marcamos para cortar esta fila
                                 if strategy_used and strategy_used.startswith("anchor:"):
                                     placed_on_this_row = True
+                                    # >>> ADD: contadores para match_source
+                                    any_anchor_used = True
+                                    pages_affected += 1
+                                    # >>> END ADD
+                                elif strategy_used and strategy_used.startswith("relative:"):
+                                    any_relative_used = True
+                                    pages_affected += 1
+                                elif strategy_used == "absolute_xy":
+                                    any_absolute_used = True
+                                    pages_affected += 1
 
                             except Exception as e:
                                 _append_error(error_rows, pdf_path.name, f"dry_run_render_page_{p1}", e)
@@ -272,9 +319,18 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                             try:
                                 page.insert_image(rect, stream=img_bytes, rotate=rotation)
 
-                                # Si fue por ancla, marcamos para cortar esta fila
                                 if strategy_used and strategy_used.startswith("anchor:"):
                                     placed_on_this_row = True
+                                    # >>> ADD: contadores para match_source
+                                    any_anchor_used = True
+                                    pages_affected += 1
+                                    # >>> END ADD
+                                elif strategy_used and strategy_used.startswith("relative:"):
+                                    any_relative_used = True
+                                    pages_affected += 1
+                                elif strategy_used == "absolute_xy":
+                                    any_absolute_used = True
+                                    pages_affected += 1
 
                             except Exception as e:
                                 _append_error(error_rows, pdf_path.name, f"insert_image_page_{p1}", e)
@@ -291,17 +347,59 @@ def process_batch(cfg: dict, auto_confirm: bool = False):
                             "rotation": rotation
                         })
 
-                        # PATCH B: si ya colocamos por ancla en esta fila, detenemos aquí
                         if placed_on_this_row:
                             break
 
                     except Exception as e:
                         _append_error(error_rows, pdf_path.name, f"process_page_{p1}", e)
 
+            # >>> ADD: decidir match_source por archivo
+            if had_rule and any_anchor_used:
+                match_source = _MatchSource.RULES_MATCH
+                reason = ""
+            elif had_rule and not any_anchor_used:
+                match_source = _MatchSource.RULES_FALLBACK
+                reason = "anchors_not_found_or_unused"
+            elif (not had_rule) and had_manifest_rows:
+                match_source = _MatchSource.NO_RULES_MANIFEST
+                reason = "no_rule_matched_used_manifest"
+            else:
+                match_source = _MatchSource.NO_RULES_DEFAULT
+                reason = "no_rule_no_manifest_default_xy"
+            # >>> END ADD
+
             if not dry_run:
                 try:
                     out_path = output_dir / pdf_path.name
                     doc.save(out_path)
+
+                    # >>> ADD: marcar/mover y reporte CSV
+                    final_path = out_path
+                    if mark_enabled and _should_flag(match_source):
+                        if move_to_subfolder:
+                            sub_dir = output_dir / (target_subfolder or "manual_review")
+                            sub_dir.mkdir(parents=True, exist_ok=True)
+                            final_path = sub_dir / out_path.name
+                            if final_path != out_path:
+                                out_path.replace(final_path)
+                        else:
+                            renamed = _mark_filename(out_path, prefix=mark_prefix, suffix=mark_suffix)
+                            if renamed != out_path:
+                                out_path.replace(renamed)
+                                final_path = renamed
+
+                    if write_report:
+                        _write_unmatched_row(
+                            report_path=report_path,
+                            filename=pdf_path.name,
+                            match_source=match_source,
+                            rule_name=(rule or {}).get("name") if isinstance(rule, dict) else "",
+                            reason=reason,
+                            pages_affected=pages_affected,
+                            output_path=final_path
+                        )
+                    # >>> END ADD
+
                 except Exception as e:
                     _append_error(error_rows, pdf_path.name, "save_pdf", e)
 
